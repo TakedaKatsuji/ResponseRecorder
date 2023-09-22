@@ -92,7 +92,14 @@ def main():
         
         with st.sidebar:
             st.markdown("# Response Recorder")
+            with st.expander("### :gear: 画像の表示枚数の変更"):
+                col1, col2 = st.columns(2)
+                with col1:
+                    st.session_state.ncol = st.number_input("**number of columns**", min_value=1, step=1)
+                with col2:
+                    st.session_state.nrow = st.number_input("**number of rows**", min_value=1, step=1)
             st.markdown(f"### :large_blue_square: プロジェクト名 : **{st.session_state.project_name}**")
+            
             st.markdown("### :large_blue_square: 患者の選択	")
             _,col = st.columns([0.1,0.9])
             with col:
@@ -132,7 +139,7 @@ def main():
             st.markdown("### :large_blue_square: Record結果の表示/出力")
             _,col = st.columns([0.1,0.9])
             with col:
-                if st.button("Download excel file", key="save_file", on_click=download_df):
+                if st.button("Download Excel file", key="save_file", on_click=download_df):
                     st.info("ダウンロードしました")
                 st.dataframe(st.session_state.df, hide_index=True)
             
@@ -140,7 +147,7 @@ def main():
         
         # ===== content =====
         patient = Patient(patient_id=st.session_state.patient_id, mode=st.session_state.mode)
-        st.markdown(f"# 患者ID : **patient_{st.session_state.patient_id}**　判定 : {st.session_state.df.filter(pl.col('ID')==st.session_state.patient_id)['術前治療効果判定'].item()}")
+        st.markdown(f"### 患者ID : **patient_{st.session_state.patient_id}**　判定 : {st.session_state.df.filter(pl.col('ID')==st.session_state.patient_id)['術前治療効果判定'].item()}")
         
         pre_col, post_col = st.columns(2)
         with pre_col:
@@ -149,14 +156,14 @@ def main():
             if len(patient.pre_image_path_list) == 0:
                 st.error(":warning: 表示する画像がありません")
             else:
-                image_viewer(patient.pre_image_path_list, ncol=2, nrow=1, key=f"{patient.patient_id}_{mode}")
+                image_viewer(patient.pre_image_path_list, ncol=st.session_state.ncol, nrow=st.session_state.nrow, key=f"{patient.patient_id}_{mode}")
             
         with post_col:
             st.markdown("## Post Images")
             if len(patient.post_image_path_list) == 0:
                 st.error(":warning: 表示する画像がありません")
             else:
-                image_viewer(patient.post_image_path_list, ncol=2, nrow=1)
+                image_viewer(patient.post_image_path_list, ncol=st.session_state.ncol, nrow=st.session_state.nrow)
 
 if __name__ == '__main__':
     main()
