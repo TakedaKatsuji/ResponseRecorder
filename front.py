@@ -1,5 +1,6 @@
 import streamlit as st
 from streamlit_image_viewer import image_viewer
+import  streamlit_toggle as tog
 import polars as pl
 from glob import glob 
 from pathlib import Path
@@ -53,6 +54,11 @@ def main():
         st.session_state.patient_index = 0
     if "state" not in st.session_state:
         st.session_state.state = 0
+    if "ncol" not in st.session_state:
+        st.session_state.ncol = 3
+    if "nrow" not in st.session_state:
+        st.session_state.nrow = 2
+        
         
     # >>>>> first page <<<<<
     with st.sidebar:
@@ -92,12 +98,22 @@ def main():
         
         with st.sidebar:
             st.markdown("# Response Recorder")
-            with st.expander("### :gear: 画像の表示枚数の変更"):
+            # ----- settings -----
+            with st.expander("### :gear: 画像の表示設定"):
                 col1, col2 = st.columns(2)
                 with col1:
-                    st.session_state.ncol = st.number_input("**number of columns**", min_value=1, step=1)
+                    st.session_state.ncol = st.number_input("**number of columns**", min_value=1, step=1, value=st.session_state.ncol)
                 with col2:
-                    st.session_state.nrow = st.number_input("**number of rows**", min_value=1, step=1)
+                    st.session_state.nrow = st.number_input("**number of rows**", min_value=1, step=1,value=st.session_state.nrow)
+                is_visible_image_name = tog.st_toggle_switch(label="画像名の表示", 
+                    key="is_visible_image_name", 
+                    default_value=True, 
+                    label_after = False, 
+                    inactive_color = '#D3D3D3', 
+                    active_color="#11567f", 
+                    track_color="#29B5E8"
+                    )
+
             st.markdown(f"### :large_blue_square: プロジェクト名 : **{st.session_state.project_name}**")
             
             st.markdown("### :large_blue_square: 患者の選択	")
@@ -147,8 +163,27 @@ def main():
         
         # ===== content =====
         patient = Patient(patient_id=st.session_state.patient_id, mode=st.session_state.mode)
-        st.markdown(f"### 患者ID : **patient_{st.session_state.patient_id}**　判定 : {st.session_state.df.filter(pl.col('ID')==st.session_state.patient_id)['術前治療効果判定'].item()}")
-        
+        style = """
+                .highlight-box {
+                            display: inline-block;
+                            padding: 5px;
+                            border-radius: 5px;
+                             color: #0078ff;
+                            font-family: Arial;
+                        }
+                """
+        st.markdown(
+            f"""
+            <div>
+                <h3>患者ID : <span class="highlight-box">patient_{st.session_state.patient_id}</span></h3>
+                <h3>現在の判定 : <span class="highlight-box">{st.session_state.df.filter(pl.col('ID')==st.session_state.patient_id)['術前治療効果判定'].item()}</span></h3>
+            </div>
+            <style>
+                {style}
+            </style>
+
+            """, unsafe_allow_html=True)
+
         pre_col, post_col = st.columns(2)
         with pre_col:
             st.markdown("## Pre Images")
@@ -156,14 +191,23 @@ def main():
             if len(patient.pre_image_path_list) == 0:
                 st.error(":warning: 表示する画像がありません")
             else:
-                image_viewer(patient.pre_image_path_list, ncol=st.session_state.ncol, nrow=st.session_state.nrow, key=f"{patient.patient_id}_{mode}")
+                image_viewer(
+                    patient.pre_image_path_list, 
+                    ncol=st.session_state.ncol,
+                    nrow=st.session_state.nrow, 
+                    image_name_visible=is_visible_image_name,
+                    key=f"{patient.patient_id}_{mode}_pre")
             
         with post_col:
             st.markdown("## Post Images")
             if len(patient.post_image_path_list) == 0:
                 st.error(":warning: 表示する画像がありません")
             else:
-                image_viewer(patient.post_image_path_list, ncol=st.session_state.ncol, nrow=st.session_state.nrow)
+                image_viewer(patient.post_image_path_list,
+                             ncol=st.session_state.ncol,
+                             nrow=st.session_state.nrow,
+                             image_name_visible=is_visible_image_name,
+                             key=f"{patient.patient_id}_{mode}_post")
 
 if __name__ == '__main__':
     main()
