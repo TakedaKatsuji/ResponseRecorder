@@ -141,7 +141,6 @@ SQLAlchemy==2.0.17
 stack-data @ file:///home/conda/feedstock_root/build_artifacts/stack_data_1669632077133/work
 starlette==0.27.0
 streamlit==1.24.0
--e git+ssh://git/TakedaKatsuji/Streamlit-ImageViewer.git@35a4f5763aa269405d67323ae41cadb25695ea4e#egg=streamlit_image_viewer
 streamlit-toggle-switch==1.0.2
 tenacity==8.2.2
 terminado @ file:///home/conda/feedstock_root/build_artifacts/terminado_1670253674810/work
