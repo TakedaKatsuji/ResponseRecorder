@@ -1,6 +1,6 @@
 # Responce Recorder　治療効果判定記録ツール
 術前治療効果判定をPre画像とPost画像を比較しながら記録が出来るツールです。
-<img src=demo/demo_0.gif width=480 height=300>　　
+<img src=demo/demo_1.png>　　
 
 ----------
 
