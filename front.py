@@ -15,17 +15,17 @@ st.set_page_config(layout="wide")
 
 # define functions and class
 class Patient:
-    def __init__(self, patient_id: int, mode: str):
+    def __init__(self, patient_id: int, condition: str):
         self.patient_id = patient_id
         self.name = f"patient_{patient_id}"
         self.patient_index = PATIENT_IDS.index(patient_id)
         self.patient_path = os.path.join(ROOTDIR,"data",self.name)
-        if mode == "全て表示":
+        if condition == "全て表示":
             self.pre_image_path_list = glob(os.path.join(self.patient_path, "Pre")+"/*")
             self.post_image_path_list = glob(os.path.join(self.patient_path, "Post")+"/*")
         else:
-            self.pre_image_path_list = glob(os.path.join(self.patient_path, "Pre") + f"/*{mode}*")
-            self.post_image_path_list = glob(os.path.join(self.patient_path, "Post") + f"/*{mode}*")
+            self.pre_image_path_list = glob(os.path.join(self.patient_path, "Pre") + f"/*{condition}*")
+            self.post_image_path_list = glob(os.path.join(self.patient_path, "Post") + f"/*{condition}*")
     
 def plus_index():
     if st.session_state.patient_index == NUM_PATIENTS - 1:
@@ -127,15 +127,15 @@ def main():
             with side_col2:
                 st.button("次の患者へ >>", on_click=plus_index)
             
-            # ----- mode -----
+            # ----- condition -----
             st.markdown("### :large_blue_square: 表示する撮影条件")
             _,col = st.columns([0.1,0.9])
             with col:
-                mode = st.radio(
+                condition = st.radio(
                     "",
                     ["全て表示", "normal", "iod", "NBI"],
                     horizontal=True,
-                    key="mode",
+                    key="condition",
                     label_visibility="collapsed"
                     )
 
@@ -156,13 +156,13 @@ def main():
             _,col = st.columns([0.1,0.9])
             with col:
                 if st.button("Download Excel file", key="save_file", on_click=download_df):
-                    st.info("ダウンロードしました")
+                    st.info(f"ダウンロードしました {ROOTDIR}/{st.session_state.project_name}.xlsx")
                 st.dataframe(st.session_state.df, hide_index=True)
             
         
         
         # ===== content =====
-        patient = Patient(patient_id=st.session_state.patient_id, mode=st.session_state.mode)
+        patient = Patient(patient_id=st.session_state.patient_id, condition=st.session_state.condition)
         style = """
                 .highlight-box {
                             display: inline-block;
@@ -196,7 +196,7 @@ def main():
                     ncol=st.session_state.ncol,
                     nrow=st.session_state.nrow, 
                     image_name_visible=is_visible_image_name,
-                    key=f"{patient.patient_id}_{mode}_pre")
+                    key=f"{patient.patient_id}_{condition}_pre")
             
         with post_col:
             st.markdown("## Post Images")
@@ -207,7 +207,7 @@ def main():
                              ncol=st.session_state.ncol,
                              nrow=st.session_state.nrow,
                              image_name_visible=is_visible_image_name,
-                             key=f"{patient.patient_id}_{mode}_post")
+                             key=f"{patient.patient_id}_{condition}_post")
 
 if __name__ == '__main__':
     main()
