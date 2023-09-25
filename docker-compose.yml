@@ -1,0 +1,12 @@
+version: '3'
+services:
+  app:
+    build:
+      context: .          # Dockerfileを含むディレクトリ
+      dockerfile: Dockerfile  # 使用するDockerfileの名前
+    ports:
+      - "8501:8501"       # ポートのマッピング
+    volumes:
+      - ./:/app # ホストディレクトリをコンテナにマウント
+    container_name: app
+    command: streamlit run front.py
